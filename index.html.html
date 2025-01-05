@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Score Analysis Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .customer-info {
+            display: flex;
+            gap: 3rem;
+            margin-top: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .score-card {
+            text-align: center;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 1rem auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .score-label {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        .risk-minimal { background: #d1fae5; color: var(--success); }
+        .risk-low { background: #e0f2fe; color: var(--primary); }
+        .risk-moderate { background: #fef3c7; color: var(--warning); }
+        .risk-high { background: #fee2e2; color: var(--danger); }
+
+        .score-ranges {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .score-ranges th,
+        .score-ranges td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .score-ranges th {
+            background: #f8fafc;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .detailed-scores {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .detailed-scores th,
+        .detailed-scores td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detailed-scores th {
+            background: #f8fafc;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recommendation {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            background: #f0f9ff;
+        }
+
+        .category-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-score {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-value-small {
+            font-weight: 500;
+            min-width: 3rem;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1>Credit Score Analysis</h1>
+                    <div class="customer-info">
+                        <div class="info-item">
+                            <i data-lucide="user"></i>
+                            John Doe
+                        </div>
+                        <div class="info-item">
+                            <i data-lucide="hash"></i>
+                            ID: 12345678
+                        </div>
+                        <div class="info-item">
+                            <i data-lucide="calendar"></i>
+                            Assessment Date: Jan 5, 2025
+                        </div>
+                    </div>
+                </div>
+                <i data-lucide="building-2" size="32"></i>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card score-card">
+                <div class="section-title">
+                    <i data-lucide="gauge"></i>
+                    Overall Credit Score
+                </div>
+                <div class="score-circle">
+                    <div class="score-value">85</div>
+                    <div class="score-label">Excellent</div>
+                </div>
+                <div class="risk-indicator risk-minimal">
+                    <i data-lucide="shield-check"></i>
+                    Minimal Risk
+                </div>
+                <div class="recommendation">
+                    <strong>Recommendation:</strong> Highly recommended for credit approval. Customer shows excellent creditworthiness across all major categories.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">
+                    <i data-lucide="list"></i>
+                    Score Ranges
+                </div>
+                <table class="score-ranges">
+                    <thead>
+                        <tr>
+                            <th>Range</th>
+                            <th>Creditworthiness</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>80-100</td>
+                            <td>Excellent</td>
+                            <td><span class="risk-indicator risk-minimal">Minimal</span></td>
+                        </tr>
+                        <tr>
+                            <td>60-79</td>
+                            <td>Good</td>
+                            <td><span class="risk-indicator risk-low">Low</span></td>
+                        </tr>
+                        <tr>
+                            <td>40-59</td>
+                            <td>Average</td>
+                            <td><span class="risk-indicator risk-moderate">Moderate</span></td>
+                        </tr>
+                        <tr>
+                            <td>0-39</td>
+                            <td>Poor</td>
+                            <td><span class="risk-indicator risk-high">High</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <i data-lucide="bar-chart-2"></i>
+                Detailed Category Scores
+            </div>
+            <div style="display: grid; gap: 1.5rem;">
+                <div>
+                    <h3 class="category-label">
+                        <i data-lucide="landmark"></i>
+                        Traditional Data
+                    </h3>
+                    <div class="category-score">
+                        <div>Credit History (20%)</div>
+                        <div class="score-value-small">90/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 90%; background: var(--primary)"></div>
+                    </div>
+
+                    <div class="category-score">
+                        <div>Income Stability (15%)</div>
+                        <div class="score-value-small">85/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 85%; background: var(--primary)"></div>
+                    </div>
+
+                    <div class="category-score">
+                        <div>Existing Loans (10%)</div>
+                        <div class="score-value-small">75/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 75%; background: var(--primary-light)"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="category-label">
+                        <i data-lucide="trending-up"></i>
+                        Alternative Data
+                    </h3>
+                    <div class="category-score">
+                        <div>Utility Payments (15%)</div>
+                        <div class="score-value-small">95/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 95%; background: var(--primary)"></div>
+                    </div>
+
+                    <div class="category-score">
+                        <div>Spending Habits (15%)</div>
+                        <div class="score-value-small">80/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 80%; background: var(--primary)"></div>
+                    </div>
+
+                    <div class="category-score">
+                        <div>Social Media Sentiment (10%)</div>
+                        <div class="score-value-small">70/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 70%; background: var(--primary-light)"></div>
+                    </div>
+
+                    <div class="category-score">
+                        <div>Geolocation Stability (10%)</div>
+                        <div class="score-value-small">85/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 85%; background: var(--primary)"></div>
+                    </div>
+
+                    <div class="category-score">
+                        <div>Rent Payments (10%)</div>
+                        <div class="score-value-small">90/100</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: 90%; background: var(--primary)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

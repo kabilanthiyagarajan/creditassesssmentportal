@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Assessment Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2563eb;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-gray: #f3f4f6;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(to right, var(--primary-color), #2c5282);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-card {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .upload-card:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .upload-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upload-icon {
+            color: var(--secondary-color);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: white;
+            color: var(--secondary-color);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--secondary-color);
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            justify-content: center;
+        }
+
+        .upload-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .process-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        .process-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .score-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .score-table th, .score-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .score-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .score-table tr:last-child td {
+            border-bottom: none;
+            background-color: var(--light-gray);
+            font-weight: 600;
+        }
+
+        .risk-indicator {
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .risk-low {
+            background-color: #d1fae5;
+            color: var(--success-color);
+        }
+
+        .risk-medium {
+            background-color: #fef3c7;
+            color: var(--warning-color);
+        }
+
+        .risk-high {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+        }
+
+        .upload-progress {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i data-lucide="building-2"></i>
+                Credit Assessment Portal
+            </h1>
+            <p>Upload your documents for comprehensive credit assessment</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-grid">
+                <div class="upload-card">
+                    <h3>
+                        <i data-lucide="receipt"></i>
+                        Utility Payments
+                    </h3>
+                    <input type="file" id="utility-upload" accept=".pdf,.jpg,.png" multiple>
+                    <label for="utility-upload" class="upload-btn">
+                        <i data-lucide="upload"></i>
+                        Upload Utility Bills
+                    </label>
+                    <div class="upload-progress" id="utility-progress"></div>
+                </div>
+
+                <div class="upload-card">
+                    <h3>
+                        <i data-lucide="landmark"></i>
+                        Bank Statements
+                    </h3>
+                    <input type="file" id="bank-upload" accept=".pdf,.csv,.xlsx">
+                    <label for="bank-upload" class="upload-btn">
+                        <i data-lucide="upload"></i>
+                        Upload Bank Statements
+                    </label>
+                    <div class="upload-progress" id="bank-progress"></div>
+                </div>
+
+                <div class="upload-card">
+                    <h3>
+                        <i data-lucide="home"></i>
+                        Rent Payments
+                    </h3>
+                    <input type="file" id="rent-upload" accept=".pdf,.jpg,.png">
+                    <label for="rent-upload" class="upload-btn">
+                        <i data-lucide="upload"></i>
+                        Upload Rent Documents
+                    </label>
+                    <div class="upload-progress" id="rent-progress"></div>
+                </div>
+
+                <div class="upload-card">
+                    <h3>
+                        <i data-lucide="briefcase"></i>
+                        Employment Proof
+                    </h3>
+                    <input type="file" id="employment-upload" accept=".pdf,.jpg,.png">
+                    <label for="employment-upload" class="upload-btn">
+                        <i data-lucide="upload"></i>
+                        Upload Employment Documents
+                    </label>
+                    <div class="upload-progress" id="employment-progress"></div>
+                </div>
+            </div>
+
+            <button class="process-btn" onclick="processDocuments()">
+                <i data-lucide="calculator"></i>
+                Process Documents
+            </button>
+        </div>
+
+        <div class="score-section" id="scoreSection">
+            <h2>
+                <i data-lucide="bar-chart-2"></i>
+                Credit Assessment Results
+            </h2>
+            <table class="score-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Score</th>
+                        <th>Weight</th>
+                        <th>Weighted Score</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreTableBody">
+                </tbody>
+            </table>
+
+            <div id="riskIndicator" class="risk-indicator">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        function processDocuments() {
+            const processBtn = document.querySelector('.process-btn');
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i data-lucide="loader" class="loading"></i> Processing...';
+            lucide.createIcons();
+
+            // Simulate processing time
+            setTimeout(() => {
+                // Mock data for demonstration
+                const scores = [
+                    { category: 'Utility Payments', score: 85, weight: 0.2 },
+                    { category: 'Banking History', score: 78, weight: 0.3 },
+                    { category: 'Rent Payment History', score: 90, weight: 0.25 },
+                    { category: 'Employment Stability', score: 82, weight: 0.25 }
+                ];
+
+                const scoreTableBody = document.getElementById('scoreTableBody');
+                scoreTableBody.innerHTML = '';
+                
+                let totalWeightedScore = 0;
+
+                scores.forEach(item => {
+                    const weightedScore = item.score * item.weight;
+                    totalWeightedScore += weightedScore;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.category}</td>
+                        <td>${item.score}</td>
+                        <td>${(item.weight * 100).toFixed(0)}%</td>
+                        <td>${weightedScore.toFixed(2)}</td>
+                    `;
+                    scoreTableBody.appendChild(row);
+                });
+
+                // Add total row
+                const totalRow = document.createElement('tr');
+                totalRow.innerHTML = `
+                    <td><strong>Total Score</strong></td>
+                    <td></td>
+                    <td><strong>100%</strong></td>
+                    <td><strong>${totalWeightedScore.toFixed(2)}</strong></td>
+                `;
+                scoreTableBody.appendChild(totalRow);
+
+                // Show risk assessment
+                const riskIndicator = document.getElementById('riskIndicator');
+                let riskClass, riskText, riskIcon;
+
+                if (totalWeightedScore >= 85) {
+                    riskClass = 'risk-low';
+                    riskIcon = 'shield-check';
+                    riskText = 'Low Risk - Excellent creditworthiness. Recommended for credit approval.';
+                } else if (totalWeightedScore >= 70) {
+                    riskClass = 'risk-medium';
+                    riskIcon = 'shield-alert';
+                    riskText = 'Medium Risk - Fair creditworthiness. Further review recommended.';
+                } else {
+                    riskClass = 'risk-high';
+                    riskIcon = 'shield-x';
+                    riskText = 'High Risk - Poor creditworthiness. Credit approval not recommended.';
+                }
+
+                riskIndicator.className = `risk-indicator ${riskClass}`;
+                riskIndicator.innerHTML = `
+                    <i data-lucide="${riskIcon}"></i>
+                    ${riskText}
+                `;
+                lucide.createIcons();
+
+                // Reset process button
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i data-lucide="calculator"></i> Process Documents';
+                lucide.createIcons();
+
+                // Show the score section
+                document.getElementById('scoreSection').style.display = 'block';
+            }, 2000);
+        }
+
+        // Add file upload listeners
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const progressDiv = document.getElementById(`${this.id}-progress`);
+                const files = e.target.files;
+                if (files.length > 0) {
+                    progressDiv.innerHTML = `
+                        <i data-lucide="check-circle"></i>
+                        ${files.length} file${files.length > 1 ? 's' : ''} selected
+                    `;
+                    lucide.createIcons();
+                } else {
+                    progressDiv.innerHTML = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
